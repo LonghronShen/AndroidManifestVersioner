@@ -10,8 +10,8 @@ namespace AndroidManifestVersioner
         private readonly int _versionCode;
         private readonly string _versionName;
 
-        private static readonly Regex VersionCodeRegex = new Regex( "android:versionCode=\"(?<version>.*)\"", RegexOptions.Compiled );
-        private static readonly Regex VersionNameRegex = new Regex( "android:versionName=\"(?<version>.*)\"", RegexOptions.Compiled );
+        private static readonly Regex VersionCodeRegex = new Regex( "android:versionCode=\"([0-9]*)\"", RegexOptions.Compiled );
+        private static readonly Regex VersionNameRegex = new Regex( "android:versionName=\"([a-zA-Z0-9.]*)\"", RegexOptions.Compiled );  // TODO: Support an arbitrary number of decimal points.
 
         public AndroidManifestVersioner( string path, int versionCode, string versionName )
         {
@@ -28,12 +28,12 @@ namespace AndroidManifestVersioner
                 var manifestFileText = streamReader.ReadToEnd();
 
                 if( VersionCodeRegex.Match( manifestFileText ).Success )
-                    manifestFileText = VersionCodeRegex.Replace( manifestFileText, "android:versionCode=\"" + ( _versionCode ) + "\"", 1 );
+                    manifestFileText = VersionCodeRegex.Replace( manifestFileText, "android:versionCode=\"" + _versionCode + "\"", 1 );
                 else
                     throw new InvalidOperationException( "Could not find versionCode section of AndroidManifest.xml." );
 
                 if( VersionNameRegex.Match( manifestFileText ).Success )
-                    manifestFileText = VersionNameRegex.Replace( manifestFileText, "android:versionName=\"" + ( _versionName ) + "\"", 1 );
+                    manifestFileText = VersionNameRegex.Replace( manifestFileText, "android:versionName=\"" + _versionName + "\"", 1 );
                 else
                     throw new InvalidOperationException( "Could not find versionName section of AndroidManifest.xml." );
 
@@ -45,5 +45,9 @@ namespace AndroidManifestVersioner
                 }
             }
         }
+
+        public string Path { get { return _path; } }
+        public int VersionCode { get { return _versionCode; } }
+        public string VersionName { get { return _versionName; } }
     }
 }
